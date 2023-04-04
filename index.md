@@ -1,51 +1,21 @@
-# 本周课后题
+# 脚本修改网卡
 
-#### 1.填空题
+## ip和网关地址需要改为自己的
 
-​		**(1)**Shell 变量的类型分为自定义变量 <u>环境变量、位置变量和预定义变量</u>
-
-​		**(2)**$0代表本文件名 \$@代表所有的参数
-
-​		**(3)**shell 变量的赋值方式有直接赋值<u>从键盘读入赋值</u>使用命令行参数赋值、<u>命令的输入、从文件输出结果赋值</u>
-
-​		**(4)**命令echo ${val-hello} 会输出<u>hello</u>
-
-​		**(5)**在命令行中，&&表示<u>逻辑与</u>||表示<u>逻辑或</u>
-
-#### 2.选择题
-
-​		**(1)**对 Shell 变量 FRUIT 的操作，正确的是（显示变量的值:echo SFRUIT）。
-
-​		**(2)**在程序使用变量时，要在变量名前面加上一个符号($)。这个符号告诉 Shell，要取出其后变量的值。
-
-​		**(3)**下面的环境变量($？)表示上一条命令执行后的返回值
-
-​		**(4)**有已知变量 url=www.qfedu.com，目前希望得到 www.QFedu.com，下面对变量 url 操正确的是(echo ${url/qf/QF})
-
-​		**(5）**希望变量 current_da 的值是当前的日期，下面命令正确的是（current da='date +%F`）
-
-#### 3.思考题
-
-​		**(1)**i++和++i有什么区别?
-
-​		i++表示先赋值在运算
-
-​		++i表示先运算在赋值
-
-​		**(2)**列出三种小数(浮点数)运算方式
-
-​		1.使用bc计算器
-
-​		2.使用awk命令。
-
-​		3.通过字符串拆分的方式获取小数（浮点数）和整数表示的结果并相加。
-
-#### 4.编程题
-
-​		(1)给变量设置默认值。
-
-​		port=${port-3306}
-
-​		(2)printf格式化输出文本颜色。
-
-​		可以使用ANSI转义序列,printf "\e[1;31m [text here] \e[0m"
+```bash
+#!/bin/bash
+cp /etc/sysconfig/network-scripts/ifcfg-ens33 /etc/sysconfig/network-scripts/ifcfg-ens34
+sed -i s/dhcp/static/ /etc/sysconfig/network-scripts/ifcfg-ens33
+sed -i s/ONBOOT=no/ONBOOT=yes/ /etc/sysconfig/network-scripts/ifcfg-ens33
+grep "^IPADDR" /etc/sysconfig/network-scripts/ifcfg-ens33
+if [ $? -eq 0 ];then
+        echo network is OK!
+        echo 网卡IP为`hostname -I`
+else
+    echo IPADDR=192.168.1.10>>/etc/sysconfig/network-scripts/ifcfg-ens33
+    echo MASK=255.255.255.0>>/etc/sysconfig/network-scripts/ifcfg-ens33
+    echo GATEWAY=192.168.1.2>>/etc/sysconfig/network-scripts/ifcfg-ens33
+    echo DNS1=8.8.8.8>>/etc/sysconfig/network-scripts/ifcfg-ens33
+    echo DNS2=114.114.114.114>>/etc/sysconfig/network-scripts/ifcfg-ens33
+    nmcli c reload #重启网卡
+```
